@@ -1,0 +1,14 @@
+* {
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+body {
+	background-color: black;
+}
+
+canvas {
+	width: 500px;
+	height: 500px;
+}

@@ -5,7 +5,7 @@ canvas.height = 300;
 const context = canvas.getContext("2d");
 context.fillStyle = "white";
 
-const numberOfParticles: number = 1000;
+const numberOfParticles: number = 6000;
 const distanceFromMouse: number = 40;
 const movementSpeedFromCursor: number = 1;
 const movementSpeedReposition: number = 0.2;

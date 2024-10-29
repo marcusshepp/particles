@@ -1,13 +1,40 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<link rel="stylesheet" href="src/style.css" type="text/css" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Particles</title>
-	</head>
-	<body>
-		<canvas id="canvas"></canvas>
-		<script type="module" src="/src/main.ts"></script>
-	</body>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="src/style.css" type="text/css" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Particles</title>
+    </head>
+    <body>
+        <canvas id="canvas"></canvas>
+
+        <div class="controls">
+            <div class="input">
+                <label>Number of particles</label>
+                <input type="number" id="particleNumber" value="1000" />
+            </div>
+
+            <div class="input">
+                <label>Radius</label>
+                <input type="number" id="radius" value="40" />
+            </div>
+
+            <div class="input">
+                <label>Speed From Cursor</label>
+                <input type="number" id="fromCursor" value="1" />
+            </div>
+
+            <div class="input">
+                <label>Reposition Speed</label>
+                <input type="number" id="reposition" value="1.5" />
+            </div>
+
+            <div class="input reset">
+                <button id="reset">Reset</button>
+            </div>
+        </div>
+
+        <script type="module" src="/src/main.ts"></script>
+    </body>
 </html>

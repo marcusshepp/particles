@@ -1,171 +1,190 @@
 const canvas = document.querySelector("#canvas");
-canvas.width = 500;
-canvas.height = 500;
+canvas.width = 300;
+canvas.height = 300;
 
 const context = canvas.getContext("2d");
 context.fillStyle = "white";
 
+const numberOfParticles: number = 1000;
+const distanceFromMouse: number = 40;
+const movementSpeedFromCursor: number = 1;
+const movementSpeedReposition: number = 1.5;
+
 const State = {
+    numberOfParticles,
+    distanceFromMouse,
+    movementSpeedFromCursor,
+    movementSpeedReposition,
+    particleRadius: 2,
+};
 
-	numberOfParticles: 10000,
-	particleRadius: 1.5,
-	distanceFromMouse: 90,
-	movementSpeed: 1,
+const particleNumberInput = document.querySelector("#particleNumber");
+particleNumberInput.addEventListener("keyup", (e) => {
+    State.numberOfParticles = e.srcElement.value;
+    createParticles();
+});
 
-}
+const radiusInput = document.querySelector("#radius");
+radiusInput.addEventListener("keyup", (e) => {
+    State.distanceFromMouse = e.srcElement.value;
+});
+
+const fromCursor = document.querySelector("#fromCursor");
+fromCursor.addEventListener("change", (e) => {
+    State.movementSpeedFromCursor = parseInt(e.srcElement.value);
+});
+
+const repositionSpeed = document.querySelector("#reposition");
+repositionSpeed.addEventListener("keyup", (e) => {
+    State.movementSpeedReposition = parseFloat(e.srcElement.value);
+});
+
+const resetBtn = document.querySelector("#reset");
+resetBtn.addEventListener("click", (e) => {
+    createParticles();
+    State.numberOfParticles = numberOfParticles;
+    particleNumberInput.value = numberOfParticles;
+
+    State.distanceFromMouse = distanceFromMouse;
+    radiusInput.value = distanceFromMouse;
+
+    State.movementSpeedFromCursor = movementSpeedFromCursor;
+    fromCursor.value = movementSpeedFromCursor;
+
+    State.movementSpeedReposition = movementSpeedReposition;
+    repositionSpeed.value = movementSpeedReposition;
+});
 
 class Vector2 {
-	constructor(x: number, y: number) {
-		this.x = x;
-		this.y = y;
-	}
+    public x: number;
+    public y: number;
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
 }
 
 let mouse = {
-	pos: new Vector2(),
-}; 
+    pos: Vector2,
+};
 
-window.addEventListener('mousemove', (e) => {
-	mouse.pos.x = e.clientX;
-	mouse.pos.y = e.clientY;
+window.addEventListener("mousemove", (e) => {
+    mouse.pos.x = e.clientX;
+    mouse.pos.y = e.clientY;
 });
 
 class Particle {
+    public destination!: Vector2;
+    public orgPos: Vector2;
+    public pos: Vector2;
 
-	/**
-	*
-	* Running affect, 
-	* when close enough to mouse
-	* 	set destination position - rand
-	* 	while not at destination position
-	* 		update curr pos by speed
-	* */
+    constructor(pos: Vector2) {
+        this.pos = pos;
+        this.orgPos = structuredClone(pos);
+    }
 
-	public destination: Vector2;
-	public orgPos: Vector2;
+    public isCloseEnough(): boolean {
+        return this.distanceFromMouse(mouse.pos) < State.distanceFromMouse;
+    }
 
-	constructor(pos: Vector2) {
-		this.pos = pos;
-		this.orgPos = pos;
-	}
+    public calcPos(): void {
+        if (this.isCloseEnough()) {
+            const destPoint: Vector2 = this.generatePointOnMouseRadius();
+            this.destination = destPoint;
+        }
+    }
 
-	public particleRadius(): number {
-		// if (this.isCloseEnough()) {
-			 // return 2.5;
-		// }
-		return State.particleRadius;
-	}
+    public updatePos(): void {
+        if (this.isCloseEnough()) {
+            context.fillStyle = "#7b7eff";
 
-	public isCloseEnough(): boolean {
-		return this.distanceFromMouse(mouse.pos) < State.distanceFromMouse;
-	}
+            if (this.destination) {
+                if (this.destination.x > this.pos.x) {
+                    this.pos.x -= State.movementSpeedFromCursor;
+                } else if (this.destination.x < this.pos.x) {
+                    this.pos.x += State.movementSpeedFromCursor;
+                }
+                if (this.destination.y > this.pos.y) {
+                    this.pos.y -= State.movementSpeedFromCursor;
+                } else if (this.destination.y < this.pos.y) {
+                    this.pos.y += State.movementSpeedFromCursor;
+                }
+            }
+        } else {
+            context.fillStyle = "white";
 
-	public calcPos(): void {
-		if (this.isCloseEnough()) {
-			const destPoint: Vector2 = this.generatePointOnMouseRadius();
-			this.destination = destPoint;
+            if (this.orgPos.x > this.pos.x) {
+                this.pos.x += State.movementSpeedReposition;
+            } else if (this.orgPos.x < this.pos.x) {
+                this.pos.x -= State.movementSpeedReposition;
+            }
+            if (this.orgPos.y > this.pos.y) {
+                this.pos.y += State.movementSpeedReposition;
+            } else if (this.orgPos.y < this.pos.y) {
+                this.pos.y -= State.movementSpeedReposition;
+            }
+        }
+    }
 
-		}
-	}
+    public distanceFromMouse(m: Vector2): number {
+        // d = sqrt((x1 - x2)^2 + (y1 - y2)^2 + (z1 - z2)^2)
+        if (!m) {
+            return 9999999;
+        }
+        const d = Math.hypot(m.x - this.pos.x, m.y - this.pos.y);
 
-	public updatePos(): void {
-		if (this.isCloseEnough()) {
-			if (this.destination) {
-				// I think i need to calc something here
-				// I need to calculate what direction to move the
-				// particle
+        return d;
+    }
 
-				if (this.destination.x > this.pos.x) {
-					this.pos.x -= State.movementSpeed;
-				} else if (this.destination.x < this.pos.x) {
-					this.pos.x += State.movementSpeed;
-				}
-				if (this.destination.y > this.pos.y) {
-					this.pos.y -= State.movementSpeed;
-				} else if (this.destination.y < this.pos.y) {
-					this.pos.y += State.movementSpeed;
-				}
+    public generatePointOnMouseRadius(): Vector2 {
+        const theda: number = Math.random() * 2 * Math.PI;
+        const r: number = State.distanceFromMouse;
+        const x: number = r * Math.cos(theda) + mouse.pos.x;
+        const y: number = r * Math.sin(theda) + mouse.pos.y;
 
-			}
-
-		} else {
-			if (this.orgPos.x > this.pos.x) {
-				this.pos.x -= State.movementSpeed;
-			} else if (this.orgPos.x < this.pos.x) {
-				this.pos.x += State.movementSpeed;
-			}
-			if (this.orgPos.y > this.pos.y) {
-				this.pos.y -= State.movementSpeed;
-			} else if (this.orgPos.y < this.pos.y) {
-				this.pos.y += State.movementSpeed;
-			}
-		}
-	}
-
-	public distanceFromMouse(m: Vector2): number {
-		// d = sqrt((x1 - x2)^2 + (y1 - y2)^2 + (z1 - z2)^2)
-		if (!m) {
-			return 9999999;
-		}
-		const d = Math.hypot(m.x - this.pos.x, m.y - this.pos.y);
-
-		return d;
-	}
-
-	public generatePointOnMouseRadius(): Vector2 {
-		const theda: number = Math.random() * 2 * Math.PI;
-		const r: number = State.distanceFromMouse;
-		const x: number = r * Math.cos(theda) + mouse.pos.x;
-		const y: number = r * Math.sin(theda) + mouse.pos.y;
-
-		return new Vector2(x, y);
-	}
+        return new Vector2(x, y);
+    }
 }
 
-
-let arrParts = [];
+let arrParts: Particle[] = [];
 function createParticles(): void {
+    arrParts = [];
 
-	for (let i = 0; i < State.numberOfParticles; i++) {
-
-		const ranX: number = Math.floor(Math.random() * canvas.width);
-		const ranY: number = Math.floor(Math.random() * canvas.height);
-		const pos: Vector2 = new Vector2(ranX, ranY);
-		const part: Particle = new Particle(pos);
-		arrParts.push(part);
-
-	}
+    for (let i = 0; i < State.numberOfParticles; i++) {
+        const ranX: number = Math.floor(Math.random() * canvas.width);
+        const ranY: number = Math.floor(Math.random() * canvas.height);
+        const pos: Vector2 = new Vector2(ranX, ranY);
+        const part: Particle = new Particle(pos);
+        arrParts.push(part);
+    }
 }
 createParticles();
 
 function drawParticles(): void {
-	for (let i = 0; i < arrParts.length; i++) {
+    for (let i = 0; i < arrParts.length; i++) {
+        const part: Particle = arrParts[i];
 
-		const part: Particle = arrParts[i];
+        part.calcPos();
+        part.updatePos();
 
-		part.calcPos();
-		part.updatePos();
+        context.beginPath();
 
-		context.beginPath();
-
-		context.arc(
-			part.pos.x,
-			part.pos.y,
-			part.particleRadius(),
-			0,
-			2 * Math.PI
-		);
-		context.closePath();
-		context.fill();
-
-	}
+        context.arc(
+            part.pos.x,
+            part.pos.y,
+            State.particleRadius,
+            0,
+            2 * Math.PI
+        );
+        context.closePath();
+        context.fill();
+    }
 }
 
 function loop(): void {
-	context.clearRect(0, 0, canvas.width, canvas.height);
-	drawParticles();
-	requestAnimationFrame(loop);
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    drawParticles();
+    requestAnimationFrame(loop);
 }
 
 loop();
-

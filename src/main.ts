@@ -8,14 +8,14 @@ context.fillStyle = "white";
 const numberOfParticles: number = 1000;
 const distanceFromMouse: number = 40;
 const movementSpeedFromCursor: number = 1;
-const movementSpeedReposition: number = 1.5;
+const movementSpeedReposition: number = 0.2;
 
 const State = {
     numberOfParticles,
     distanceFromMouse,
     movementSpeedFromCursor,
     movementSpeedReposition,
-    particleRadius: 2,
+    particleRadius: 1,
 };
 
 const particleNumberInput = document.querySelector("#particleNumber");
@@ -96,8 +96,6 @@ class Particle {
 
     public updatePos(): void {
         if (this.isCloseEnough()) {
-            context.fillStyle = "#7b7eff";
-
             if (this.destination) {
                 if (this.destination.x > this.pos.x) {
                     this.pos.x -= State.movementSpeedFromCursor;
@@ -111,8 +109,6 @@ class Particle {
                 }
             }
         } else {
-            context.fillStyle = "white";
-
             if (this.orgPos.x > this.pos.x) {
                 this.pos.x += State.movementSpeedReposition;
             } else if (this.orgPos.x < this.pos.x) {

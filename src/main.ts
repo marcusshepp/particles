@@ -7,7 +7,7 @@ context.fillStyle = "white";
 
 const numberOfParticles: number = 6000;
 const distanceFromMouse: number = 40;
-const movementSpeedFromCursor: number = 1;
+const movementSpeedFromCursor: number = 5;
 const movementSpeedReposition: number = 0.2;
 
 const State = {
@@ -69,8 +69,9 @@ let mouse = {
 };
 
 window.addEventListener("mousemove", (e) => {
-    mouse.pos.x = e.clientX;
-    mouse.pos.y = e.clientY;
+    const rect = canvas.getBoundingClientRect();
+    mouse.pos.x = e.clientX - rect.left;
+    mouse.pos.y = e.clientY - rect.top;
 });
 
 class Particle {

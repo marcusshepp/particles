@@ -10,7 +10,7 @@ Each particle has an original position. When the cursor is close enough to the p
 
 The speed in which the particle flys to its new position around the radis, is determined by the `speed from cursor`.
 
-When the mouse is no longer close enough, the particle goes back to its original position based on the editable `reposition speed`.
+When the mouse is no longer close enough, the particle goes back to its original position. The speed in which it repositions itself is based on the editable `reposition speed`.
 
 ## Why??
 Because if I'm typing and thinking, I'm happy.

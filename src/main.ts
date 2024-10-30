@@ -10,12 +10,16 @@ const distanceFromMouse: number = 40;
 const movementSpeedFromCursor: number = 5;
 const movementSpeedReposition: number = 0.2;
 
+const cheeseAudio:  HTMLAudioElement = new Audio("src/audio/CheeseSmack.mp3")
+const cheeseImages: string[] =  ["blue.png", "cheddar.png", "cheese-stick.png", "cheese-wheel.png", "gouda.png"]
+
 const State = {
     numberOfParticles,
     distanceFromMouse,
     movementSpeedFromCursor,
     movementSpeedReposition,
     particleRadius: 1,
+    isCheeseMode: false
 };
 
 const particleNumberInput = document.querySelector("#particleNumber");
@@ -37,6 +41,14 @@ fromCursor.addEventListener("change", (e) => {
 const repositionSpeed = document.querySelector("#reposition");
 repositionSpeed.addEventListener("keyup", (e) => {
     State.movementSpeedReposition = parseFloat(e.srcElement.value);
+});
+
+const cheeseMode = document.querySelector("#cheeseMode");
+cheeseMode.addEventListener("change", (e) => {
+    if(e.srcElement.checked){
+        cheeseAudio.play()
+    }
+    State.isCheeseMode = e.srcElement.checked;
 });
 
 const resetBtn = document.querySelector("#reset");
@@ -78,10 +90,12 @@ class Particle {
     public destination!: Vector2;
     public orgPos: Vector2;
     public pos: Vector2;
+    public imagePath: string = "";
 
     constructor(pos: Vector2) {
         this.pos = pos;
         this.orgPos = structuredClone(pos);
+        this.imagePath = selectCheeseImage();
     }
 
     public isCloseEnough(): boolean {
@@ -143,6 +157,10 @@ class Particle {
     }
 }
 
+function selectCheeseImage(): string{
+    return 'src/images/' + cheeseImages[Math.floor((Math.random()*100)%cheeseImages.length)]
+}
+
 let arrParts: Particle[] = [];
 function createParticles(): void {
     arrParts = [];
@@ -164,17 +182,24 @@ function drawParticles(): void {
         part.calcPos();
         part.updatePos();
 
-        context.beginPath();
+        if(State.isCheeseMode){
+            const img: HTMLImageElement  = new Image()
+            img.src = part.imagePath;
+            context.drawImage(img,  part.pos.x, part.pos.y, 8, 8);
+        }else{
+            context.beginPath();
 
-        context.arc(
-            part.pos.x,
-            part.pos.y,
-            State.particleRadius,
-            0,
-            2 * Math.PI
-        );
-        context.closePath();
-        context.fill();
+            context.arc(
+                part.pos.x,
+                part.pos.y,
+                State.particleRadius,
+                0,
+                2 * Math.PI,
+            
+            );
+            context.closePath();
+            context.fill();
+        }
     }
 }
 

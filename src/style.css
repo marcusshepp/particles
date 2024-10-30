@@ -49,3 +49,7 @@ label {
     display: flex;
     justify-content: flex-end;
 }
+
+.cheese-mode{
+    color: yellow;
+}

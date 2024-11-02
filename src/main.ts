@@ -161,7 +161,9 @@ function selectCheeseImage(): string{
     return 'src/images/' + cheeseImages[Math.floor((Math.random()*100)%cheeseImages.length)]
 }
 
+
 let arrParts: Particle[] = [];
+let imagePositons: {[xPos: number]: Vector2} = {}
 function createParticles(): void {
     arrParts = [];
 
@@ -182,10 +184,17 @@ function drawParticles(): void {
         part.calcPos();
         part.updatePos();
 
+        let lastPos: Vector2 = new Vector2(-8,-8);
         if(State.isCheeseMode){
             const img: HTMLImageElement  = new Image()
+
+            const xPos = lastPos.x < part.pos.x && part.pos.x < lastPos.x + 8 ?  lastPos.x + 8: part.pos.x;
+            const yPos = lastPos.y < part.pos.y && part.pos.y < lastPos.y + 8 ?  lastPos.y + 8: part.pos.y;
+
             img.src = part.imagePath;
-            context.drawImage(img,  part.pos.x, part.pos.y, 8, 8);
+            context.drawImage(img,  xPos, yPos, 8, 8);
+
+            lastPos = new Vector2(xPos, yPos)
         }else{
             context.beginPath();
 
